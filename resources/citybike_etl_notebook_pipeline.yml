@@ -1,0 +1,72 @@
+resources:
+  jobs:
+    citybike_etl_notebook_pipeline:
+      name: citybike_etl_notebook_pipeline
+      tasks:
+        - task_key: bronze_nb
+          notebook_task:
+            notebook_path: ../notebook/bronze/bronze_notebook.ipynb
+            base_parameters:
+              pipeline_id: "{{job.id}}"
+              run_id: "{{job.run_id}}"
+              task_id: "{{task.run_id}}"
+              processed_timestamp: "{{job.start_time.iso_datetime}}"
+              catalog: "${var.catalog}"
+            source: WORKSPACE
+          job_cluster_key: etl_job_cluster
+        - task_key: silver_nb
+          depends_on:
+            - task_key: bronze_nb
+          notebook_task:
+            notebook_path: ../notebook/silver/silver_notebook.ipynb
+            base_parameters:
+              pipeline_id: "{{job.id}}"
+              run_id: "{{job.run_id}}"
+              task_id: "{{task.run_id}}"
+              processed_timestamp: "{{job.start_time.iso_datetime}}"
+              catalog: "${var.catalog}"
+            source: WORKSPACE
+          job_cluster_key: etl_job_cluster
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: gold_daily_ride_summary
+          depends_on:
+            - task_key: silver_nb
+          notebook_task:
+            notebook_path: ../notebook/gold/gold_notebook_daily_ride_summary.ipynb
+            base_parameters:
+              catalog: "${var.catalog}"
+            source: WORKSPACE
+          job_cluster_key: etl_job_cluster
+        - task_key: gold_daily_stn_performance
+          depends_on:
+            - task_key: silver_nb
+          notebook_task:
+            notebook_path: ../notebook/gold/gold_notebook_daily_station_performance.ipynb
+            base_parameters:
+              catalog: "${var.catalog}"
+            source: WORKSPACE
+          job_cluster_key: etl_job_cluster
+      job_clusters:
+        - job_cluster_key: etl_job_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 17.3.x-scala2.13
+            spark_conf:
+              spark.master: local[*, 4]
+              spark.databricks.cluster.profile: singleNode
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_DC4as_v5
+            custom_tags:
+              ResourceClass: SingleNode
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            enable_elastic_disk: true
+            data_security_mode: SINGLE_USER
+            runtime_engine: STANDARD
+            num_workers: 0
+      queue:
+        enabled: true

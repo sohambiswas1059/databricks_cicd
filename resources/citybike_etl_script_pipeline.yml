@@ -1,0 +1,68 @@
+resources:
+  jobs:
+    citybike_etl_script_pipeline:
+      name: citybike_etl_script_pipeline
+      tasks:
+        - task_key: bronze_py
+          spark_python_task:
+            python_file: ../scripts/bronze/bronze_script.py
+            parameters:
+              - "{{job.id}}"
+              - "{{job.run_id}}"
+              - "{{task.run_id}}"
+              - "{{job.start_time.iso_datetime}}"
+              - "${var.catalog}"
+          job_cluster_key: etl_job_cluster
+        - task_key: silver_py
+          depends_on:
+            - task_key: bronze_py
+          spark_python_task:
+            python_file: ../scripts/silver/silver_script.py
+            parameters:
+              - "{{job.id}}"
+              - "{{job.run_id}}"
+              - "{{task.run_id}}"
+              - "{{job.start_time.iso_datetime}}"
+              - "${var.catalog}"
+          job_cluster_key: etl_job_cluster
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: gold_daily_ride_summary
+          depends_on:
+            - task_key: silver_py
+          spark_python_task:
+            python_file: ../scripts/gold/gold_daily_ride_summary.py
+            parameters:
+              - "${var.catalog}"
+          job_cluster_key: etl_job_cluster
+        - task_key: gold_daily_stn_performance
+          depends_on:
+            - task_key: silver_py
+          spark_python_task:
+            python_file: ../scripts/gold/gold_daily_station_performance.py
+            parameters:
+              - "${var.catalog}"
+          job_cluster_key: etl_job_cluster
+      job_clusters:
+        - job_cluster_key: etl_job_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 17.3.x-scala2.13
+            spark_conf:
+              spark.master: local[*, 4]
+              spark.databricks.cluster.profile: singleNode
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_DC4as_v5
+            custom_tags:
+              ResourceClass: SingleNode
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            enable_elastic_disk: true
+            data_security_mode: SINGLE_USER
+            runtime_engine: STANDARD
+            num_workers: 0
+      queue:
+        enabled: true

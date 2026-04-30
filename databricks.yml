@@ -1,0 +1,53 @@
+# This is a Databricks asset bundle definition for databricks_cicd.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: databricks_cicd
+  uuid: 62bc7f7c-f70c-46cc-a274-e2a9ee4cb3ff
+
+include:
+  - resources/*.yml
+
+# Variable declarations. These variables are assigned in the dev/test/prod targets below.
+variables:
+  catalog:
+    description: The catalog to use
+  dev_flag: 
+    description: Whether to create development resources (e.g. with a name prefix) or production resources
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405611780504873.13.azuredatabricks.net
+    variables:
+      catalog: citybike_dev
+      dev_flag: true
+    presets:
+      artifacts_dynamic_version: true
+  test:
+    mode: production
+    workspace:
+      host: https://adb-7405614166452217.17.azuredatabricks.net/
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: citybike_test
+      dev_flag: false
+    permissions:
+      - user_name: sohambiswas1060_gmail.com#ext#@sohambiswas1060gmail.onmicrosoft.com
+        level: CAN_MANAGE
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405610949391953.13.azuredatabricks.net/
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: citybike_prod
+      dev_flag: false
+    permissions:
+      - user_name: sohambiswas1060_gmail.com#ext#@sohambiswas1060gmail.onmicrosoft.com
+        level: CAN_MANAGE

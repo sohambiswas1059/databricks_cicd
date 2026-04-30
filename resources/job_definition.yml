@@ -1,0 +1,19 @@
+resources:
+  jobs:
+    create_catalogs_and_schemas:
+      name: create_catalogs_and_schemas
+      tasks:                        
+        - task_key: create_catalogs
+          spark_python_task:
+            python_file: ../init_scripts/catalog_schema_volume.py
+          new_cluster:
+            spark_version: 17.3.x-scala2.13
+            node_type_id: Standard_DC4as_v5
+            num_workers: 0
+            autotermination_minutes: 10
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+              spark.master: local[*]
+            data_security_mode: SINGLE_USER
+            custom_tags:
+              ResourceClass: SingleNode

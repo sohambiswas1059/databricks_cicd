@@ -1,0 +1,18 @@
+import sys
+from pyspark.sql.functions import max, min, avg, count, round
+
+catalog = sys.argv[1]
+
+df = spark.read.format("delta").table(f"{catalog}.silver.jc_citybike")
+
+df = df.groupBy("started_date").agg(
+    round(max("trip_duration_mins"),2).alias("max_trip_duration_mins"),
+    round(min("trip_duration_mins"),2).alias("min_trip_duration_mins"),
+    round(avg("trip_duration_mins"),2).alias("avg_trip_duration_mins"),
+    count("ride_id").alias("total_trips")
+)
+
+df.write.\
+    mode("overwrite").\
+    option("overwriteSchema", "true").\
+    saveAsTable(f"{catalog}.gold.daily_ride_summary")

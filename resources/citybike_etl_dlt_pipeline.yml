@@ -1,0 +1,23 @@
+resources:
+  pipelines:
+    citybike_etl_dlt_pipeline:
+      name: citybike_etl_dlt_pipeline
+      configuration:
+        catalog: "${var.catalog}"
+      libraries:
+        - file:
+            path: ../dlt/bronze/bronze_dlt.py
+        - file:
+            path: ../dlt/silver/silver_dlt.py
+        - file:
+            path: ../dlt/gold/gold_daily_ride_summary_dlt.py
+        - file:
+            path: ../dlt/gold/gold_daily_station_performance_dlt.py
+      environment:
+        dependencies:
+          - --editable ${workspace.file_path}      
+      schema: bronze
+      development: "${var.dev_flag}"
+      photon: true
+      catalog: "${var.catalog}"
+      serverless: true

@@ -1,0 +1,26 @@
+# Core PySpark (Spark 4.0.0)
+pyspark==4.0.0
+py4j==0.10.9.9
+
+# Data stack aligned with DBR 17.3 LTS
+numpy==2.1.3
+pandas==2.2.3
+pyarrow==19.0.1
+python-dateutil==2.9.0.post0
+six==1.16.0
+tzdata==2024.1
+
+# gRPC / Spark Connect-adjacent libraries aligned with DBR 17.3 LTS
+googleapis-common-protos==1.65.0
+grpcio==1.67.0
+grpcio-status==1.67.0
+protobuf==5.29.4
+zstandard==0.25.0
+
+# Testing
+coverage==7.8.0
+iniconfig==1.1.1
+packaging==24.2
+pluggy==1.5.0
+pytest==8.3.5
+pytest-cov==6.1.1
