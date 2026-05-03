@@ -38,8 +38,9 @@ targets:
       catalog: citybike_test
       dev_flag: false
     permissions:
-      - user_name: sohambiswas1060_gmail.com#ext#@sohambiswas1060gmail.onmicrosoft.com
+      - service_principal_name: 4fe14f5c-0d70-438a-9fca-b5552af6a40d
         level: CAN_MANAGE
+    
   prod:
     mode: production
     workspace:
@@ -49,5 +50,5 @@ targets:
       catalog: citybike_prod
       dev_flag: false
     permissions:
-      - user_name: sohambiswas1060_gmail.com#ext#@sohambiswas1060gmail.onmicrosoft.com
+      - service_principal_name: 32517cb8-79b8-413b-a15f-da6a9a74a559
         level: CAN_MANAGE
