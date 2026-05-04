@@ -33,6 +33,11 @@ jobs:
           pip install --upgrade pip
           pip install setuptools wheel build
 
+      - name: Build wheel artifact
+        run: |
+          python -m build
+          ls dist
+
       - name: Configure Databricks
         run: |
           # write out the profile (here called "test")
@@ -77,6 +82,11 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install setuptools wheel build
+
+      - name: Build wheel artifact
+        run: |
+          python -m build
+          ls dist
 
       - name: Configure Databricks
         run: |
