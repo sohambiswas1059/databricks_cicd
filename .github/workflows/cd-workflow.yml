@@ -59,7 +59,7 @@ jobs:
     name: Deploy to PROD
     needs: cd-deploy-test
     runs-on: ubuntu-latest
-    environment: prod
+    environment: dbw-prod
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
