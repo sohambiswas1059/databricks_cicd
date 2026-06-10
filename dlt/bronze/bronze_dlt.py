@@ -24,8 +24,7 @@ catalog = spark.conf.get("catalog")
 
 @dlt.table(
     name = f"{catalog}.default.jc_citybike_bronze",
-    comment = "Bronze table for JC Citybike trip data",
-    table_properties={"overwriteSchema": "true"}
+    comment = "Bronze table for JC Citybike trip data"
 )
 def bronze_jc_citybike():
     df = spark.read.csv(f"/Volumes/{catalog}/landing/source_citibike_data/JC-202503-citibike-tripdata.csv", schema=schema, header=True)
